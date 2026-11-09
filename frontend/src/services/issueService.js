@@ -24,6 +24,9 @@ export const issueService = {
 
   // Check for duplicates before submit
   checkDuplicate: (params) => API.get('/issues/check-duplicate', { params }),
+
+  // Upvote an existing issue
+  upvoteIssue: (id) => API.post(`/issues/${id}/upvote`),
 }
 
 export const authService = {

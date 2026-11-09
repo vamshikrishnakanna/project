@@ -12,6 +12,7 @@ const {
   deleteIssue,
   checkDuplicate,
   getIssuesForMap,
+  upvoteIssue,
 } = require('../controllers/issueController');
 
 const { protect, restrictTo } = require('../middleware/authMiddleware');
@@ -51,6 +52,7 @@ router.get('/:id', getIssueById);
 router.post('/', upload.single('image'), createIssue);
 router.patch('/:id/status', protect, restrictTo('admin'), updateIssueStatus);
 router.delete('/:id', protect, restrictTo('admin'), deleteIssue);
+router.post('/:id/upvote', upvoteIssue);
 
 module.exports = router;
 

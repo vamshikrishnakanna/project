@@ -4,7 +4,7 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import L from 'leaflet'
 import {
   ArrowLeft, MapPin, Calendar, Tag, Hash, CheckCircle2,
-  Clock, AlertCircle, Wrench, ChevronRight
+  Clock, AlertCircle, Wrench, ChevronRight, ThumbsUp, Share2, Check
 } from 'lucide-react'
 import { StatusBadge, CategoryBadge } from '../components/common/Badge'
 import IssueCard from '../components/common/IssueCard'
@@ -77,6 +77,25 @@ const IssueDetailPage = () => {
   const [related, setRelated] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [upvoted, setUpvoted] = useState(false)
+  const [copied, setCopied] = useState(false)
+
+  const handleUpvote = async () => {
+    if (upvoted || !issue?._id) return
+    try {
+      const res = await issueService.upvoteIssue(issue._id)
+      setIssue((prev) => ({ ...prev, upvotes: res.data.upvotes }))
+      setUpvoted(true)
+    } catch (err) {
+      alert('Failed to upvote: ' + err.message)
+    }
+  }
+
+  const handleShare = () => {
+    navigator.clipboard.writeText(window.location.href)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2500)
+  }
 
   useEffect(() => {
     const fetchIssue = async () => {
@@ -149,7 +168,37 @@ const IssueDetailPage = () => {
             <StatusBadge status={issue.status} />
           </div>
 
-          <h1 className="text-2xl font-bold text-slate-900 mb-4">{issue.title}</h1>
+          {/* Title and Action Buttons */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+            <h1 className="text-2xl font-bold text-slate-900">{issue.title}</h1>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <button
+                onClick={handleUpvote}
+                disabled={upvoted}
+                className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold border transition-all ${
+                  upvoted
+                    ? 'bg-green-50 border-green-200 text-green-700'
+                    : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300'
+                }`}
+                title="Upvote this complaint to show authorities this affects you too"
+              >
+                <ThumbsUp className={`h-3.5 w-3.5 ${upvoted ? 'text-green-600 fill-green-600' : 'text-slate-400'}`} />
+                <span>{upvoted ? 'Upvoted' : 'I have this problem too'}</span>
+                <span className="ml-1 px-1.5 py-0.5 rounded-full bg-slate-100 text-[11px] font-mono">
+                  {issue.upvotes || 0}
+                </span>
+              </button>
+
+              <button
+                onClick={handleShare}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition-colors"
+                title="Copy link to clipboard"
+              >
+                {copied ? <Check className="h-3.5 w-3.5 text-green-600" /> : <Share2 className="h-3.5 w-3.5 text-slate-400" />}
+                <span>{copied ? 'Copied!' : 'Share'}</span>
+              </button>
+            </div>
+          </div>
 
           {/* Meta */}
           <div className="flex flex-wrap gap-5 text-sm text-gray-500 mb-6">

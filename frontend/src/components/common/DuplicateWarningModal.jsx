@@ -1,12 +1,28 @@
-import React from 'react'
-import { AlertTriangle, X, Eye, ChevronRight, MapPin, Calendar, Tag } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import React, { useState } from 'react'
+import { AlertTriangle, X, Eye, ChevronRight, MapPin, Calendar, Tag, ThumbsUp, Loader2 } from 'lucide-react'
+import { Link, useNavigate } from 'react-router-dom'
 import { StatusBadge, CategoryBadge } from '../common/Badge'
 import { formatDate, formatDistance, getComplaintId } from '../../utils/constants'
+import { issueService } from '../../services/issueService'
 
 const DuplicateWarningModal = ({ duplicates, onContinue, onClose }) => {
+  const navigate = useNavigate()
+  const [upvoting, setUpvoting] = useState(false)
   const primary = duplicates[0]
   const issue = primary?.issue
+
+  const handleUpvoteExisting = async (existingId) => {
+    setUpvoting(true)
+    try {
+      await issueService.upvoteIssue(existingId)
+      onClose()
+      navigate(`/issues/${existingId}`)
+    } catch {
+      navigate(`/issues/${existingId}`)
+    } finally {
+      setUpvoting(false)
+    }
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
@@ -110,13 +126,22 @@ const DuplicateWarningModal = ({ duplicates, onContinue, onClose }) => {
           <Link
             to={`/issues/${issue?._id}`}
             target="_blank"
-            className="flex-1 btn-secondary justify-center gap-2"
+            className="flex-1 btn-secondary justify-center gap-2 text-xs"
           >
-            <Eye className="h-4 w-4" /> View Existing Complaint
+            <Eye className="h-4 w-4" /> View Existing
           </Link>
           <button
+            type="button"
+            disabled={upvoting}
+            onClick={() => handleUpvoteExisting(issue?._id)}
+            className="flex-1 btn-secondary text-blue-700 bg-blue-50 border-blue-200 hover:bg-blue-100 justify-center gap-1.5 text-xs font-semibold"
+          >
+            {upvoting ? <Loader2 className="h-4 w-4 animate-spin" /> : <ThumbsUp className="h-4 w-4" />}
+            Upvote Existing & Cancel
+          </button>
+          <button
             onClick={onContinue}
-            className="flex-1 btn-primary justify-center gap-2 bg-orange-600 hover:bg-orange-700"
+            className="flex-1 btn-primary justify-center gap-2 bg-orange-600 hover:bg-orange-700 text-xs font-semibold"
           >
             Continue Anyway <ChevronRight className="h-4 w-4" />
           </button>

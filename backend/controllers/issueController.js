@@ -256,3 +256,18 @@ exports.checkDuplicate = async (req, res) => {
   }
 };
 
+
+// ─── POST /api/issues/:id/upvote ──────────────────────────────────────────────
+exports.upvoteIssue = async (req, res) => {
+  try {
+    const issue = await Issue.findByIdAndUpdate(
+      req.params.id,
+      { $inc: { upvotes: 1 } },
+      { returnDocument: 'after' }
+    );
+    if (!issue) return res.status(404).json({ success: false, message: 'Issue not found' });
+    res.json({ success: true, message: 'Upvoted successfully', upvotes: issue.upvotes });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
