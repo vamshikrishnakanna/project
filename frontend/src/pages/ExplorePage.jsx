@@ -82,11 +82,18 @@ const ExplorePage = () => {
   )
 
   return (
-    <div className="page-container py-10">
+    <div className="page-container py-8">
+      {/* Breadcrumb Navigation */}
+      <nav className="flex items-center gap-2 text-xs text-slate-500 mb-3">
+        <Link to="/" className="hover:text-blue-600 transition-colors">Home</Link>
+        <ChevronRight className="h-3 w-3 text-slate-400" />
+        <span className="text-slate-900 font-semibold">Explore Issues</span>
+      </nav>
+
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-slate-900 mb-1">Explore Issues</h1>
-        <p className="text-gray-500 text-sm">Browse all civic complaints reported across the city</p>
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold text-slate-900 mb-1">Explore Public Issues</h1>
+        <p className="text-gray-500 text-sm">Browse civic complaints, track resolution progress, or view issues on the map.</p>
       </div>
 
       {/* Filters */}
@@ -201,19 +208,48 @@ const ExplorePage = () => {
       ) : error ? (
         <ErrorMessage message={error} onRetry={fetchIssues} />
       ) : issues.length === 0 ? (
-        <EmptyState
-          icon="🔍"
-          title="No issues found"
-          description="Try adjusting your filters or search term."
-          action={
-            <button
-              onClick={() => { setSearch(''); setCategory(''); setStatus(''); setPage(1) }}
-              className="btn-secondary text-sm"
-            >
-              Clear Filters
-            </button>
-          }
-        />
+        search || category || status ? (
+          <EmptyState
+            icon="🔍"
+            title="No matching issues"
+            description="No complaints matched your current filters or search term."
+            action={
+              <button
+                onClick={() => { setSearch(''); setCategory(''); setStatus(''); setPage(1) }}
+                className="btn-secondary text-sm"
+              >
+                Clear Filters
+              </button>
+            }
+          />
+        ) : (
+          <div className="card p-10 text-center max-w-2xl mx-auto my-6 border-dashed border-2 border-slate-200">
+            <div className="text-4xl mb-3">🏙️</div>
+            <h3 className="text-xl font-bold text-slate-800 mb-1">No Complaints in the City Yet</h3>
+            <p className="text-sm text-slate-500 mb-6 max-w-md mx-auto">
+              Your community is clean! Be the first citizen to report an issue or use one of the quick templates below:
+            </p>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-left">
+              {[
+                { cat: 'Pothole', icon: '🕳️', label: 'Report Pothole' },
+                { cat: 'Garbage', icon: '🗑️', label: 'Report Garbage' },
+                { cat: 'Streetlight', icon: '💡', label: 'Broken Streetlight' },
+                { cat: 'Water Leakage', icon: '💧', label: 'Water Leakage' },
+              ].map((item) => (
+                <Link
+                  key={item.cat}
+                  to={`/report?category=${encodeURIComponent(item.cat)}`}
+                  className="p-3 bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-blue-300 rounded-xl transition-all group flex flex-col justify-between"
+                >
+                  <span className="text-2xl mb-2">{item.icon}</span>
+                  <span className="text-xs font-semibold text-slate-700 group-hover:text-blue-600">
+                    {item.label} →
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )
       ) : (
         <>
           <div className={view === 'grid'

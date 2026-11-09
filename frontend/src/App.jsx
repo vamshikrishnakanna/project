@@ -1,5 +1,5 @@
 import React from 'react'
-import { Routes, Route, Navigate, Outlet } from 'react-router-dom'
+import { Routes, Route, Navigate, Outlet, Link, useLocation } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import Navbar from './components/layout/Navbar'
 import Footer from './components/layout/Footer'
@@ -15,15 +15,32 @@ import LoginPage from './pages/LoginPage'
 import NotFoundPage from './pages/NotFoundPage'
 
 // Layout wrapper
-const Layout = () => (
-  <div className="min-h-screen flex flex-col bg-gray-50">
-    <Navbar />
-    <main className="flex-1">
-      <Outlet />
-    </main>
-    <Footer />
-  </div>
-)
+const Layout = () => {
+  const location = useLocation()
+  const isReportPage = location.pathname === '/report'
+
+  return (
+    <div className="min-h-screen flex flex-col bg-gray-50 relative">
+      <Navbar />
+      <main className="flex-1">
+        <Outlet />
+      </main>
+      <Footer />
+
+      {/* Persistent Mobile Quick Report FAB */}
+      {!isReportPage && (
+        <Link
+          to="/report"
+          className="md:hidden fixed bottom-6 right-6 z-40 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold text-xs py-3 px-4 rounded-full shadow-xl flex items-center gap-2 transition-all transform active:scale-95 border-2 border-white/20"
+          aria-label="Report an issue"
+        >
+          <span className="text-sm font-bold">➕</span>
+          <span>Report Issue</span>
+        </Link>
+      )}
+    </div>
+  )
+}
 
 // Protected admin route
 const AdminRoute = () => {

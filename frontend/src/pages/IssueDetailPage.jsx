@@ -4,7 +4,7 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import L from 'leaflet'
 import {
   ArrowLeft, MapPin, Calendar, Tag, Hash, CheckCircle2,
-  Clock, AlertCircle, Wrench
+  Clock, AlertCircle, Wrench, ChevronRight
 } from 'lucide-react'
 import { StatusBadge, CategoryBadge } from '../components/common/Badge'
 import IssueCard from '../components/common/IssueCard'
@@ -107,10 +107,23 @@ const IssueDetailPage = () => {
   const location = [issue.location?.area, issue.location?.city].filter(Boolean).join(', ') || 'Bengaluru'
 
   return (
-    <div className="page-container py-10 max-w-4xl">
-      {/* Back */}
-      <Link to="/explore" className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-800 mb-6 group">
-        <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" /> Back to Explore
+    <div className="page-container py-8 max-w-4xl">
+      {/* Breadcrumb Navigation */}
+      <nav className="flex items-center gap-2 text-xs text-slate-500 mb-4">
+        <Link to="/" className="hover:text-blue-600 transition-colors">Home</Link>
+        <ChevronRight className="h-3 w-3 text-slate-400" />
+        <Link to="/explore" className="hover:text-blue-600 transition-colors">Explore</Link>
+        <ChevronRight className="h-3 w-3 text-slate-400" />
+        <Link to={`/explore?category=${encodeURIComponent(issue.category)}`} className="hover:text-blue-600 transition-colors">
+          {issue.category}
+        </Link>
+        <ChevronRight className="h-3 w-3 text-slate-400" />
+        <span className="text-slate-900 font-semibold font-mono">{getComplaintId(issue)}</span>
+      </nav>
+
+      {/* Back button */}
+      <Link to="/explore" className="inline-flex items-center gap-2 text-xs font-medium text-gray-500 hover:text-blue-600 mb-5 group transition-colors">
+        <ArrowLeft className="h-3.5 w-3.5 group-hover:-translate-x-1 transition-transform" /> Back to Explore Issues
       </Link>
 
       {/* Header Card */}

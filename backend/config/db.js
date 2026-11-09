@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Issue = require('../models/Issue');
 
 let mongod = null;
 
@@ -7,13 +8,13 @@ const connectDB = async () => {
   
   try {
     const conn = await mongoose.connect(uri, {
-      serverSelectionTimeoutMS: 2000,
+      serverSelectionTimeoutMS: 5000,
     });
     console.log(`✅ MongoDB Connected to external server: ${conn.connection.host}`);
     
-    // Auto-seed if empty
-    const { seedData } = require('../seed');
-    await seedData(false);
+    // Ensure geospatial 2dsphere and search indexes exist
+    await Issue.createIndexes();
+    console.log('📌 Database indexes verified');
   } catch (error) {
     console.warn(`⚠️ Could not connect to MongoDB at "${uri}". Starting embedded MongoDB engine...`);
     try {
@@ -24,9 +25,8 @@ const connectDB = async () => {
       const conn = await mongoose.connect(memoryUri);
       console.log(`✅ Embedded MongoDB Started and Connected: ${memoryUri}`);
 
-      // Auto seed sample data
-      const { seedData } = require('../seed');
-      await seedData(true);
+      // Ensure indexes
+      await Issue.createIndexes();
     } catch (memErr) {
       console.error(`❌ Failed to start embedded MongoDB: ${memErr.message}`);
       process.exit(1);
