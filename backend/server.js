@@ -61,10 +61,13 @@ app.use((req, res) => {
 // Global error handler
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 5001;
-app.listen(PORT, () => {
-  console.log(`🚀 CivicTrack API running on port ${PORT} [${process.env.NODE_ENV || 'development'}]`);
-});
+// Only bind to a port when running directly (not in serverless environments like Vercel)
+if (process.env.NODE_ENV !== 'production' || process.env.LISTEN_ON_PORT === 'true') {
+  const PORT = process.env.PORT || 5001;
+  app.listen(PORT, () => {
+    console.log(`🚀 CivicTrack API running on port ${PORT} [${process.env.NODE_ENV || 'development'}]`);
+  });
+}
 
 module.exports = app;
 
